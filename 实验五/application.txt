@@ -1,0 +1,99 @@
+一、
+
+方案A
+（1）不正确的隔离级别会导致各个事务看到的数据不一致。当一个事务更新时，其他事务就必须等待先行事务释放当前锁，还有可能使得数据更新丢失。
+（2）确认信息位置不正确。当用户在事务没有结束前收到操作完成的确认信息时，当事务发生回滚后，事务将会被撤销，但是用户会认为已经执行成功，也就是发生脏读问题
+（3）余额应该是300美元。需要调整事务边界以允许所有用户的最大吞吐量。当一个用户获得一个数据项的锁时，会一直持有它知道ATM会话结束。
+（4）在事务当中暂停用户输入会导致吞吐量降低。因为一个用户的等待可能会导致其他用户等待那一个用户释放数据锁
+
+
+方案B
+（1）隔离等级不正确，读提交会使得更新丢失。
+（2）在一个事务中等待用户的输入会降低吞吐量。
+
+方案C
+（1）隔离等级太严格，因为不可能出现幻读，所以可重复读才是适当的隔离等级。
+（2）在一个事务中等待用户的输入会降低吞吐量。
+
+正确的执行顺序：
+ Willian
+
+ ATM prompts user for operation.
+ William Chooses Deposit into Savings.
+ ATM prompts user for amount.
+ William enters 400.
+
+  Begin transaction(serializable isolation level)
+  Select balance of savings
+  savings_balance = saving_balance + $400
+  Update savings balance in database.
+  End Transaction
+
+ ATM displays confirmation fo deposit.
+ ATM propmpts user for operation.
+ William chooses transfer from checking to savings.
+ ATM prompts user for amount.
+ William enters 300.
+
+  Begin transaction (serializable isolation level)
+  Select the checking balance.
+  checking_balance = checking_balance -$300
+  Select the savings balance.
+  savings_balance = savings_balance +$300
+
+ Update savings balance in database.
+ Update checking balance in database.
+ End Trensaction
+ ATM displays confirmation of transfer.
+ ATM Prompt user for operation.
+ William chooses no more operations.
+
+
+
+      Julie
+ ATM prompts user for operation.
+ Julie Chooses Deposit into Checking.
+ ATM Prompts user for amount.
+ Julie enters 500.
+  
+ Begin transaction (serializable isolation level)
+ Select balance of checking 
+ checking_balance = checking_balance + $500 
+ Update checking balance in database.
+ End Transaction 
+ ATM displays confirmation of deposit.
+ ATM prompts user for operation.
+ Julie chooses withdrawal from savings.
+ ATM prompts user for amount.
+ Julie enters 100.
+
+ Begin transaction (serializable isolation level)
+ Select the savings checking balance in database.
+ savings_balance = savings_balance - $100 
+ Update savings balance in database. 
+ End Transaction 
+
+ ATM displays confirmation of withdrawal.
+ ATM Prompt user for operation.
+ Julie chooses no more operations.   
+
+
+
+二、Movie
+1.关于事务开始和结束位置的解释
+System.out.println( "Please enter the number of seats that you want to buy: " ); 
+		numseats = Integer.parseInt( keyIn.readLine() ); 
+ 
+		// 开始一个新的事务. 
+		stmt.executeUpdate( "Begin Work" ); 
+ 
+		// 给事务设立隔离等级 
+		stmt.executeUpdate( "set transaction isolation level serializable" ); 
+ 
+		// 选取作为
+		sqlquery = new String( "select available_standard_seats from showing where movie_id = " + movie_id ); 
+		rset = stmt.executeQuery( sqlquery ); 
+
+2.因为查询必须由事务边界保护，如果查询不受事务边界保护，两个用户可能看到不一样的数据
+
+3.事务应在可串行化的隔离级别运行。如果事务在读提交时运行，则两个事务都可能请求到的座位数超过剩余座位数。

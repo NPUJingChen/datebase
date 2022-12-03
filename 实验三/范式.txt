@@ -1,0 +1,31 @@
+1.List the primary key
+主键：TrackingNum
+
+2.List all the FDs
+
+EmpNanme依赖于EmpID
+{ShipToAddr，ShippedDate}依赖于OrderNo
+{EmpID，OrderNo}依赖于TrackingNum
+
+
+3.List all the update anomalies and provide an example of each
+
+(1)删除异常：如果一名员工只执行过一次运送货物操作，那么删除这个操作信息时，这个员工的信息也会被删除，从而查找不到该名员工
+(2)插入异常：如果一名员工没有执行过任何运送货物的操作，那么他的信息就不会被存入数据库当中
+(3)更新异常：如果一名员工执行过多次运送货物操作，该员工的ID和名字就会被重复多次，如果我们想要更新该员工的姓名或者ID，我们就需要把重复的信息全部更新
+                     如果不更新全部，就会导致一个ID对应多个姓名（旧的和更新过的）
+
+
+4.What normal form is the relation in? Explain. 
+满足第二范式
+因为该关系中，所有属性都是不可分的基本数据项（第一范式），又因为主键时TrackingNum，不存在非主属性对主码的部分依赖，但因为关系中存在非主属性对主码的传递依赖，比如TrackingNum→EmpID，EmpID→EmpNum，所以不满足第三范式要求
+综上所述，该关系满足第二范式
+
+5.
+F={EmpID→{EmpName},OrderNo→{ShipToAddr},TrackingNum→{EmpID,OrderNo,ShippedDate}}
+F'={EmpID→{EmpName},OrderNo→{ShipToAddr},TrackingNum→{EmpID},TrackingNum→{OrderNo},TrackingNum→{ShippedDate}}
+可以拆分为三个关系
+1.Employee（EmpID,EmpName）主键 EmpID    FDs={EmpID→EmpName}
+2.Order（OrderNo,ShipToAddr,ShippedDate）主键OrderID   FDs={OrderNo→ShipToAddr,OrderNo→ShippedDate}
+3.Shipment（TrackingNum,EmpID,OrderNo） 主键TrackingNum FDs={TrrackingNum→OrderNo,TrackingNum→EmpID}
+以上三个关系模型都已经达到第三范式（3NF）要求，因为其中每一个关系模式都消除了非主属性对码的传递依赖，且满足第二范式。

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="postgresql-8.1-404.jdbc3">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Desktop/数据库实验/实验五/postgresql-8.1-404.jdbc3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

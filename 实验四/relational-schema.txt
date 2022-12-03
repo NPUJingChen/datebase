@@ -1,0 +1,151 @@
+第一步：（创建强实体表，将复合属性拆分）
+Book(Title,ISBN,Edition,PublishDate,Price,BookDescription)
+PK(ISBN)
+
+Author(Author Name,Atuhor_id)
+PK(Author_id)
+
+Publisher(Publisher_id,Publisher Name,Address)
+PK(Publisher_id)
+AK(PublisherName,Address)(没有一家打印店有相同的地址和名字)
+
+Customer(Customer_id,CustomerName,MailingAddress,Credit Card Number and Expiration Date,PhoneNumber,EmailAddress)
+PK(Customer_id)
+AK(Credit Card Number and Expiration Date)
+
+Shipment(ShipmentDate,TrackingNumber,ExpectedDate)
+PK(Tracking Number)
+
+Orders(OrderNumber,MailingAddress,Method,DateAndTimeOrder,TotalPrice)
+PK(Order Number)
+
+Promotion(Promotion_id,Percentage Discount,Duration)
+PK(Promotion_id)
+
+Category(Category_id,CategoryName)
+PK(Category_id)
+
+第二步：
+本实验中的实例中不存在仅与实体关系为1：1的弱实体类型
+
+第三步：（为1：N，M：N的弱实体创建新表）
+LineItem（ISBN,OrderNumber,TrackingNumber,TotalPrice,Quantity）
+PK(ISBN,OrderNumber)
+FK(ISBN)→Book(ISBN)
+FK(OrderNumber)→Order(OrderNumber)
+FK(TrackingNumber)→Shipment(TrackingNumber)
+
+第四步：
+实例中不存在两个实体间的1：1关系类型
+
+第五步（一对多）：
+Book(Title,ISBN,Edition,PublishDate,Price,BookDescription,Publisher_id)
+PK(ISBN)
+FK(Publisher_id)→Publisher(Publisher_id)
+
+Orders(OrderNumber,MailingAddress,Method,DateAndTimeOrder,TotalPrice,Customer_id)
+PK(OrderNumber)
+FK(Customer_id)→Customer(Customer_id)
+
+Shipment(ShipmentDate, TrackingNumber, ExpectedDate, OrderNumber) 
+PK(TrackingNumber) 
+FK(OrderNumber) -> Order(OrderNumber) 
+
+Category(Category_id,CategoryName,Super_id)
+PK(Category_id)
+FK(Super_id)→Category(Category_id)
+
+第六步：（多对多）
+Book_Author:
+		Write(ISBN,Author_id)
+		PK(ISBN,Author_id)
+		FK(ISBN)→Book(ISBN)
+		FK(Author_id)→Author(Author_id)
+
+Book_Category:
+		BelongTo(ISBN,Category_id)
+		PK(ISBN,Category_id)
+		FK(ISBN)→Book(ISBN)
+		FK(Category_id)→Category(Category_id)
+
+Book_Promotion:
+		Promote(ISBN,Promotion_id)
+		PK(ISBN,Promotion_id)
+		FK(ISBN)→Book(ISBN)
+		FK(Promotion_id)→Promotion(Promotion_id)
+
+第七步：（多值属性）
+Total Price(BookPrice,ShipmentPrice,Quantity,Tax,OrderNumber)
+PK(BookPrice,ShipmentPrice,OrderNumber)
+FK(OrderNumber)→Order(OrderNumber)
+
+Duration(StartDate,EndDate,Promotion_id)
+PK(StratDate,EndDate,Promotion_id)
+FK(Promotion_id)→Promotion(Promotion_id)
+
+第八步：
+本实验的实例中不存在子类实体。
+
+第九步：
+本实验的实例中不存在子类实体。
+
+最终关系模型的建立表：
+
+Book(Title,ISBN,Edition,PublishDate,Price,BookDescription,Publisher_id)
+PK(ISBN)
+FK(Publisher_id)→Publisher(Publisher_id)
+
+Author(Author Name,Atuhor_id)
+PK(Author_id)
+
+Publisher(Publisher_id,Publisher Name,Address)
+PK(Publisher_id)
+AK(PublisherName,Address)
+
+Customer(Customer_id,CustomerName,MailingAddress,Credit Card Number and Expiration Date,PhoneNumber,EmailAddress)
+PK(Customer_id)
+AK(Credit Card Number and Expiration Date)
+
+Shipment(ShipmentDate, TrackingNumber, ExpectedDate, OrderNumber) 
+PK(TrackingNumber) 
+FK(OrderNumber) -> Order(OrderNumber) 
+
+Orders(OrderNumber,MailingAddress,Method,DateAndTimeOrder,TotalPrice,Customer_id)
+PK(OrderNumber)
+FK(Customer_id)→Customer(Customer_id)
+
+Promotion(Promotion_id,Percentage Discount,Duration)
+PK(Promotion_id)
+
+Category(Category_id,CategoryName,Super_id)
+PK(Category_id)
+FK(Super_id)→Category(Category_id)
+
+LineItem(ISBN,OrderNumber,TrackingNumber,TotalPrice,Quantity)
+PK(ISBN,OrderNumber)
+FK(ISBN)→Book(ISBN)
+FK(OrderNumber)→Order(OrderNumber)
+FK(TrackingNumber)→Shipment(TrackingNumber)
+
+Write(ISBN,Author_id)
+PK(ISBN,Author_id)
+FK(ISBN)→Book(ISBN)
+FK(Author_id)→Author(Author_id)
+
+BelongTo(ISBN,Category_id)
+PK(ISBN,Category_id)
+FK(ISBN)→Book(ISBN)
+FK(Category_id)→Category(Category_id)
+
+Promote(ISBN,Promotion_id)
+PK(ISBN,Promotion_id)
+FK(ISBN)→Book(ISBN)
+FK(Promotion_id)→Promotion(Promotion_id)
+
+Total Price(BookPrice,ShipmentPrice,Quantity,Tax,OrderNumber)
+PK(BookPrice,ShipmentPrice,OrderNumber)
+FK(OrderNumber)→Order(OrderNumber)
+
+Duration(StartDate,EndDate,Promotion_id)
+PK(StratDate,EndDate,Promotion_id)
+FK(Promotion_id)→Promotion(Promotion_id)

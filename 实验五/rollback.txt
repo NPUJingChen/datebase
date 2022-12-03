@@ -1,0 +1,110 @@
+1.运行提供的SQL脚本来构建一个小型银行数据库：帐户识别号和余额。这里有两个账户，一个储蓄账户和一个支票账户。储蓄账户的=是1，支票账户的=是2. 
+drop table account;
+create table account
+(
+   id int,
+   balance float,
+   Primary Key(id) 
+);
+
+insert into account values (1, 105.59 );
+insert into account values (2, 1050.59 );
+
+2.开始一个新的事务。
+begin transaction;
+
+3.选择支票帐户的余额，并将输出粘贴到一个名为rollback.txt的文件中.
+输入： 
+begin transaction;
+select balance
+from account
+where id=2;
+输出：
+balance double precision
+   1050.59
+
+4.同时删除储蓄账户和支票账户。将SQL查询放在rollback.txt中执行此操作
+begin transaction;
+select balance
+from account
+where id=2;
+delete from account;
+
+5.选择帐户表中的所有数据，并将输出粘贴到rollback.txt中
+输入：
+begin transaction;
+select balance
+from account
+where id=2;
+delete from account;
+select * from account;
+输出都为空
+
+6.回滚交易记录。
+begin transaction;
+select balance
+from account
+where id=2;
+delete from account;
+select * from account;
+rollback;
+
+7.选择储蓄账户和支票账户的余额，并将输出粘贴到rollback.txt中.
+输入：
+begin transaction;
+select balance
+from account
+where id=2;
+delete from account;
+select * from account;
+rollback;
+select * from account;
+输出：
+行  balance double precision
+1   105.59
+2   1050.59
+
+8.开始一个新的事务。
+begin transaction;
+
+9.删除储蓄账户。将SQL代码放在rollback.txt中.
+begin transaction;
+delete from account
+where id=1;
+
+10.从帐户表中选择所有行，并将输出粘贴到rollback.txt中.
+输入：
+begin transaction;
+delete from account
+where id=1;
+select * from account;
+输出：
+行  id integer    balance double precision
+1    2                 1050.59
+
+11.提交事务
+begin transaction;
+delete from account
+where id=1;
+select * from account;
+commit;
+
+12.尝试回滚您刚刚提交的事务。在表中存储了哪些值？请解释您在上面观察到的事务提交和回滚的影响。把你的解释放入rollback.txt文件中.
+输入：
+begin transaction;
+delete from account
+where id=1;
+select * from account;
+commit;
+rollback;
+输出：
+注意:  没有事物在运行中
+query result with 1 row discarded.
+
+
+查询成功但无结果，耗时: 12 毫秒(ms)。
+
+解释：
+事务的提交会保存从“begin transaction”（开始事务）到“commit transaction”（确认事务）之间的所有操作
+事务的回滚会撤销将从“begin transaction”（开始事务）到“rollback transaction”（回滚事务）之间的所有操作
+因为上述步骤中事务已经被提交，所以当前没有正在进行的事务了，再进行回滚操作就会报错。

@@ -1,0 +1,116 @@
+1.运行提供的SQL脚本来构建一个小型银行数据库：帐户识别号和余额。这里有两个账户，一个储蓄账户和一个支票账户。储蓄账户的=是1，支票账户的=是2. 
+--drop table account;
+create table account
+(
+   id int,
+   balance float,
+   Primary Key(id) 
+);
+
+insert into account values (1, 105.59 );
+insert into account values (2, 1050.59 );
+
+2.在两个独立的控制台窗口中启动PostgreSQL客户端的两个会话。
+完成
+
+3.在两个窗口中开始新的事务。
+窗口一：
+begin transaction;
+
+窗口二：
+begin transaction;
+
+4.在第二个窗口中将支票账户的余额更新到455.75。
+窗口二：
+begin transaction;
+update account
+set balance=455.75
+where id =2;
+
+5.在第一个窗口中，将支票账户的余额更新到1400.00。更新是否发生？为什么或为什么不呢？把你的答案放入deadlock.txt文件中. 
+窗口一：
+begin transaction;
+update account
+set balance=1400.00
+where id =2;
+
+解释：更新没有成功，因为第二个窗口已经将相应的数据锁死，第一个窗口等着第二个窗口将锁释放之后更新数据。
+
+6.在第二个窗口中提交该事务处理。你注意到在第一个窗口中发生了什么？请解释。把你的答案放入deadlock.txt文件中. 
+窗口二：
+begin transaction;
+update account
+set balance=455.75
+where id =2;
+commit;
+
+窗口一：
+查询成功返回: 一行受到影响，耗时: 298086 毫秒(ms)。
+
+解释：
+第一个窗口操作执行成功。因为第二个窗口的事务提交成功，释放了锁，阻塞消失，所以窗口一的操作可以继续。
+
+7.在第一个窗口中提交该事务处理。
+窗口一：
+begin transaction;
+update account
+set balance=1400.00
+where id =2;
+commit;
+
+8.在每个窗口中开始一个新的事务处理。
+窗口一：
+begin transaction;
+
+窗口二：
+begin transaction;
+
+9.在第二个窗口中将储蓄账户余额更新到2400.00。
+窗口二：
+begin transaction;
+update account
+set balance=2400.00
+where id =1;
+
+10.在第一个窗口中，将支票账户余额更新到2000.00。
+窗口一：
+begin transaction;
+update account
+set balance=2000.00
+where id=2;
+
+11.在第一个窗口中，将储蓄账户余额更新到1400.00。
+窗口一：
+update account
+set balance = 1400
+where id = 1;
+
+12.在第二个窗口中将支票账户余额更新到1000.50。
+update account
+set balance = 1000.50
+where id = 2;
+
+13.这些交易会发生什么变化？为什么把你的答案放入deadlock.txt文件中. 
+窗口二中的进程发生了死锁现象，没有结果输出，一直在运行。
+
+14.在每个窗口中查询表的数据，你观察到了什么？试做说明，将答案写入deadlock.txt
+窗口一：
+输入：
+begin transaction;
+update account
+set balance=2000.00
+where id=2;
+update account
+set balance = 1400
+where id = 1;
+select * from account;
+输出：
+行  id integer    balance double precision
+1    2                2000
+2    1                1400
+
+窗口二：
+发生错误
+
+解释：
+窗口一正确执行了事务的所有操作，窗口二因为发生了死锁所以只能重新载入。

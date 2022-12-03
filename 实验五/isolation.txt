@@ -1,0 +1,185 @@
+1.运行SQL script建立一个小的银行数据库，account关系包含两列，用户id和账户余额。有两行数据，定期储蓄账户（id为1）和活期储蓄账户（id为2）。
+--drop table account;
+create table account
+(
+   id int,
+   balance float,
+   Primary Key(id) 
+);
+
+insert into account values (1, 105.59 );
+insert into account values (2, 1050.59 );
+
+2.在两个独立的控制台窗口中启动PostgreSQL客户端的两个会话。
+完成
+
+3.在两个窗口中开始新的事务。
+窗口一：
+begin transaction;
+
+窗口二：
+begin transaction;
+
+4.在第一个窗口中，更新支票账户的余额为455.66
+窗口一：
+begin transaction;
+update account
+set balance=455.66
+where id=2;
+
+5.在第一个窗口中，从帐户表中选择所有数据，并将输出放到文件isolation.txt中。确保对数据进行标签，以便清楚这些数据来自第一个表。
+窗口一：
+输入：
+begin transaction;
+update account
+set balance=455.66
+where id=2;
+select * from account;
+输出：
+行  id integer    balance double precision
+1   1                  105.59
+2   2                  455.66
+
+6.在第二个窗口中，从帐户表中选择所有数据，并将输出放到文件isolation.txt中。确保标记数据，以便清楚这是来自第二个窗口的数据。
+窗口二：
+输入：
+begin transaction;
+select * from account;
+输出：
+行  id integer    balance double precision
+1   1                  105.59
+2   2                  1050.59
+
+7.在第一个窗口中提交该事务处理以更新帐户表。
+窗口一：
+begin transaction;
+update account
+set balance=455.66
+where id=2;
+select * from account;
+commit;
+
+8.在第二个窗口中，从帐户表中选择所有数据，并将输出放到文件isolation.txt中。确保标记数据，以便清楚这是来自第二个窗口的数据。这些数据发生了什么变化，为什么呢？将这个问题的答案放在isolation.txt中. 
+窗口二：
+输入：
+begin transaction;
+select * from account;
+输出：
+行  id integer    balance double precision
+1   1                  105.59
+2   2                  455.66
+解释：
+窗口一读取的数据是事务提交之前的修改数据，是正确的读取，但是事务没有提交，所以窗口二读取不到窗口一的数据修改。
+在窗口一提交事务之后，窗口二再次读取就可以正确读取到之前窗口一修改的数据，也是正确的读取。
+
+9.在第二个窗口中提交该事务处理。
+begin transaction;
+select * from account;
+commit;
+
+10.在这两个窗口中，都要开始新的事务。
+窗口一：
+begin transaction;
+
+窗口二：
+begin transaction;
+
+11.将第二个窗口中的事务的事务隔离级别设置为可序列化。将这样操作的代码放在isolation.txt中. 
+begin transaction;
+set transaction isolation level serializable;
+
+12.在第一个窗口中，将支票账户余额设置为1400.00。
+begin transaction;
+update account
+set balance=1400.00
+where id=2;
+
+13.在第二个窗口中，将储蓄账户余额设置为1。
+begin transaction;
+set transaction isolation level serializable;
+update account
+set balance=1
+where id=1;
+
+14.在第一个和第二个窗口中的帐户表中选择所有数据，并将其放到isolation.txt中。一定要清楚地标记数据，以表示来自第一个和第二个窗口的数据。
+窗口一：
+输入：
+begin transaction;
+update account
+set balance=1400.00
+where id=2;
+select * from account;
+输出：
+行  id integer    balance double precision
+1   1                  105.59
+2   2                  1400
+
+窗口二：
+输入：
+begin transaction;
+set transaction isolation level serializable;
+update account
+set balance=1
+where id=1;
+select * from account;
+输出：
+行  id integer    balance double precision
+1   2                  455.66
+2   1                  1
+
+15.在第一个窗口中提交数据。
+窗口一：
+begin transaction;
+update account
+set balance=1400.00
+where id=2;
+select * from account;
+commit;
+
+16.从第二个窗口中的帐户表中选择所有数据。支票账户的数据改变了吗？为什么或为什么不呢？储蓄账户的数据是否在第一个窗口中发生了更改？为什么或为什么不呢？将这些问题的答案放在isolation.txt中
+窗口一：
+输入：
+select * from account;
+输出：
+行  id integer    balance double precision
+1   1                  105.59
+2   2                  1400
+
+窗口二：
+输入：
+select * from account;
+输出：
+行  id integer    balance double precision
+1   2                  455.66
+2   1                  1
+
+解释：
+窗口2活期储蓄账户值没有更新，窗口1定期储蓄账户值没有更新，因为两个事物为串行化的隔离等级，窗口二无法读取窗口一同时进行的数据更改。
+
+17.在第二个窗口中提交数据。在这两个窗口中都可以显示帐户表中的所有数据。将两个窗口的输出放到isolation.txt中。清楚地标记哪些数据来自第一个窗口，哪些数据来自第二个窗口。你现在注意到支票账户和储蓄账户的余额是什么？请解释。把你的解释放入isolation.txt文件中. 
+窗口二：
+输入：
+begin transaction;
+set transaction isolation level serializable;
+update account
+set balance=1
+where id=1;
+select * from account;
+commit;
+
+select * from account;
+输出：
+行  id integer    balance double precision
+1   2                  1400
+2   1                  1
+
+窗口一：
+输入：
+select * from account;
+输出：
+行  id integer    balance double precision
+1   2                  1400
+2   1                  1
+
+解释：
+因为此时两个窗口所有操作均已经提交，串行化的隔离等级使得两个窗口的操作都可以成功提交，所以两个窗口查询的结果是一样的。
